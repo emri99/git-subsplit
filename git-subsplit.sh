@@ -234,6 +234,8 @@ subsplit_publish()
 			$PUSH_CMD || fatal 2 "Command failed: $PUSH_CMD"
 		done
 
+		EXISTING_TAGS="$(git ls-remote "$REMOTE_NAME" 2>/dev/null | grep -v "\^{}" | grep "refs/tags/" | cut -f3 -d/)"
+
 		for TAG in $TAGS
 		do
 			debug "git show-ref --quiet --verify -- \"refs/tags/${TAG}\""
@@ -247,7 +249,7 @@ subsplit_publish()
 
 			debug "LOCAL_TAG="${LOCAL_TAG}""
 
-			if git branch | grep "${LOCAL_TAG}$" >/dev/null && [ -z "$REBUILD_TAGS" ]
+			if $(echo "$EXISTING_TAGS" | grep "${TAG}$" >/dev/null) && [ -z "$REBUILD_TAGS" ]
 			then
 				say " - skipping tag '${TAG}' (already synced)"
 				continue
